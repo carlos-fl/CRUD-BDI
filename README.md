@@ -4,6 +4,10 @@ Programa de escritorio para crear una base de datos, tablas y poder llenarlas de
 
 ## Levantar el proyecto
 
+### Instalar el modulo virtualenv
+```
+pip install virtualenv
+```
 ### Crear primero un entorno virtual
 
 ```
