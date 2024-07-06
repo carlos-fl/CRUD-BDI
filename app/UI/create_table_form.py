@@ -7,9 +7,10 @@ from app.logic.field import Field
 
 
 class TableForm(QWidget):
-    def __init__(self,connection):
+    def __init__(self,connection,db_name):
         super().__init__()
         self.connection = connection
+        self.db_name = db_name
         self.initUI()
     
     def initUI(self):
@@ -78,9 +79,7 @@ class TableForm(QWidget):
                 field = Field(column_name, data_type)
                 self.fields.append(field)
             table = Table()
-            table.create(self.table_name_edit.text(),self.connection,self.fields)
-
-            pass
+            table.create(self.db_name,self.table_name_edit.text(),self.connection,self.fields)
 
 
 

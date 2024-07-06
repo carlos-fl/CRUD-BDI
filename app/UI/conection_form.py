@@ -45,15 +45,15 @@ class DatabaseForm(QWidget):
             try:
                 from app.logic.conection import Connection
                 con = Connection()
-                con.connect_to_database(server, database, port)
+                self.connection = con.connect_to_database(server, database, port)
                 QMessageBox.information(self, 'Success', f'Server: {server}\nDatabase: {database}')
-                self.open_options_window(con)
+                self.open_options_window()
             except Exception as e:
                 QMessageBox.critical(self, 'Connection Error', f'Error al conectar a la base de datos. Intenta poner otro servidor u otro puerto: {e}')
         else:
             QMessageBox.warning(self, 'Input Error', 'Se necesitan los datos del servidor y el nombre que se le quiere dar a la base de datos.')
 
         
-    def open_options_window(self,con):
-        self.second_window = SecondWindow(con)
+    def open_options_window(self):
+        self.second_window = SecondWindow(self.connection,self.database_input.text())
         self.second_window.show()
