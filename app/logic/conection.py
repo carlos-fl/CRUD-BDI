@@ -23,6 +23,7 @@ class Connection:
       return (user_name, database)
     except Exception as e:
       raise Exception(e)
+<<<<<<< HEAD
 
   def connect_to_database(self, server, database, port):
     connection_string = (
@@ -37,3 +38,6 @@ class Connection:
       return conn
     except Exception as e:
       raise Exception(e)
+=======
+    return cnxn
+>>>>>>> 7d61514 (Completes table creation)
