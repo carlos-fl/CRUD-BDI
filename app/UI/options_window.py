@@ -30,13 +30,15 @@ class SecondWindow(QWidget):
         self.setWindowTitle('Main Menu')
 
     def open_create_tables_window(self):
-      pass
+        pass
 
     def open_create_users_window(self):
-      pass
+        pass
 
     def open_join_user_window(self):
-      pass
+        pass
 
     def open_fill_tables_window(self):
-      pass
+        from app.UI.llenar_tablas import FillTablesWindow
+        self.fill_table_window = FillTablesWindow()
+        self.fill_table_window.show()
