@@ -11,8 +11,8 @@ class SecondWindow(QWidget):
         self.create_tables_button = QPushButton('CREAR TABLAS', self)
         self.create_tables_button.clicked.connect(self.open_create_tables_window)
 
-        self.create_users_button = QPushButton('CREAR USUARIOS', self)
-        self.create_users_button.clicked.connect(self.open_create_users_window)
+        self.manage_users_button = QPushButton('MANEJAR PERMISOS DE USUARIOS', self)
+        self.manage_users_button.clicked.connect(self.open_manage_users_window)
 
         self.join_user_button = QPushButton('UNIRSE COMO USUARIO', self)
         self.join_user_button.clicked.connect(self.open_join_user_window)
@@ -22,7 +22,7 @@ class SecondWindow(QWidget):
 
         layout = QVBoxLayout()
         layout.addWidget(self.create_tables_button)
-        layout.addWidget(self.create_users_button)
+        layout.addWidget(self.manage_users_button)
         layout.addWidget(self.join_user_button)
         layout.addWidget(self.fill_tables_button)
 
@@ -32,8 +32,10 @@ class SecondWindow(QWidget):
     def open_create_tables_window(self):
         pass
 
-    def open_create_users_window(self):
-        pass
+    def open_manage_users_window(self):
+        from app.UI.conceder_permisos import ManagePermissionsWindow
+        self.manage_permissions_window = ManagePermissionsWindow()
+        self.manage_permissions_window.show()
 
     def open_join_user_window(self):
         pass
