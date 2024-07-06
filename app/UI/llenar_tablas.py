@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QComboBox, QPushButton, QLabel, QLineEdit
+from PyQt5.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QComboBox, QPushButton, QLabel, QLineEdit
 
 class FillTablesWindow(QWidget):
     def __init__(self):
@@ -93,9 +93,33 @@ class FillTablesWindow(QWidget):
       
 
     def show_view_layout(self):
+        from app.UI.conection_form import INFO
+        from app.logic.conection import Connection
+
         self.clear_layout()
-        self.result_label = QLabel('Aquí se verá "SELECT * FROM table"', self)
-        self.layout().addWidget(self.result_label)
+        table_selected = self.table_dropdown.currentText()
+        server, database, port = INFO['server'], INFO['database'], INFO['port']
+        try:
+            conn = Connection().connect_to_database(server, database, port)
+            query = f'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME LIKE {table_selected}'
+            cursor = conn.cursor()
+            cursor.execute(query)
+            fields = cursor.fetchall()
+            cursor.execute(f'SELECT * FROM {table_selected}')
+            data = cursor.fetchall
+
+            self.result_table = QTableWidget()
+            self.result_table.setColumnCount(len(fields))
+            self.result_table.setHorizontalHeaderLabels(fields)
+            self.result_table.setRowCount(len(data))
+
+            for row_idx, row_data in enumerate(data):
+                for col_idx, cell_data in enumerate(row_data):
+                    self.result_table.setItem(row_idx, col_idx, QTableWidgetItem(str(cell_data)))
+
+            self.layout().addWidget(self.result_label)
+        except Exception as e:
+            print(e)
 
     def show_create_layout(self):
         from app.UI.conection_form import INFO
