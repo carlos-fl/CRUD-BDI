@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
+from app.UI.create_table_form import TableForm
 
 class SecondWindow(QWidget):
-    def __init__(self):
+    def __init__(self,connection):
         super().__init__()
+        self.connection = connection
         self.initUI()
 
     def initUI(self):
@@ -30,7 +32,13 @@ class SecondWindow(QWidget):
         self.setWindowTitle('Main Menu')
 
     def open_create_tables_window(self):
+<<<<<<< HEAD
         pass
+=======
+      self.table_form = TableForm(self.connection);
+      self.table_form.show();
+
+>>>>>>> 345f277 (Includes table creation form)
 
     def open_create_users_window(self):
         pass
