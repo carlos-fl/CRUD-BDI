@@ -14,10 +14,8 @@ class TableForm(QWidget):
         self.initUI()
     
     def initUI(self):
-        # Size of window
         self.resize(700, 400)
-
-        # Create widgets
+        
         #self.label_table_name = QLabel('Nombre de Tabla:', self)
         #self.input_table_name = QLineEdit(self)
 
@@ -28,12 +26,6 @@ class TableForm(QWidget):
         self.table_name_edit = QLineEdit()
         layout.addWidget(label_table_name)
         layout.addWidget(self.table_name_edit)
-
-        # Campo para el número de columnas
-        #label_num_columns = QLabel("Número de columnas:")
-        #self.num_columns_edit = QLineEdit()
-        #layout.addWidget(label_num_columns)
-        #layout.addWidget(self.num_columns_edit)
 
         self.column_widgets = []
         for i in range(5):  # número de columnas máximas
