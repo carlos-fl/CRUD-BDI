@@ -16,6 +16,10 @@ class ManagePermissionsWindow(QWidget):
 
         self.database_label = QLabel('Database:', self)
         self.database_combo = QComboBox(self)
+        self.database_combo.currentIndexChanged.connect(self.load_tables)
+
+        self.table_label = QLabel('Table:', self)
+        self.table_combo = QComboBox(self)
 
         self.permission_label = QLabel('Permission:', self)
         self.permission_combo = QComboBox(self)
@@ -37,6 +41,8 @@ class ManagePermissionsWindow(QWidget):
         main_layout.addWidget(self.username_input)
         main_layout.addWidget(self.database_label)
         main_layout.addWidget(self.database_combo)
+        main_layout.addWidget(self.table_label)
+        main_layout.addWidget(self.table_combo)
         main_layout.addWidget(self.permission_label)
         main_layout.addWidget(self.permission_combo)
         main_layout.addWidget(self.select_checkbox)
@@ -52,7 +58,7 @@ class ManagePermissionsWindow(QWidget):
     def load_databases_and_users(self):
         try:
             # Use Windows Authentication (Trusted Connection)
-            conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=DESKTOP-HBC5E0J;DATABASE=master;Trusted_Connection=yes')
+            conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=your_server;DATABASE=master;Trusted_Connection=yes')
             cursor = conn.cursor()
 
             # Load databases
@@ -69,21 +75,41 @@ class ManagePermissionsWindow(QWidget):
         except Exception as e:
             self.show_error_message(f"Error loading databases and users: {str(e)}")
 
+    def load_tables(self):
+        self.table_combo.clear()
+        database = self.database_combo.currentText()
+        if database:
+            try:
+                conn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER=your_server;DATABASE={database};Trusted_Connection=yes')
+                cursor = conn.cursor()
+
+                # Load tables
+                cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
+                tables = cursor.fetchall()
+                self.table_combo.addItems([table[0] for table in tables])
+
+                conn.close()
+            except Exception as e:
+                self.show_error_message(f"Error loading tables: {str(e)}")
+
     def apply_permissions(self):
         username = self.username_input.currentText()
         database = self.database_combo.currentText()
+        table = self.table_combo.currentText()
         permission_type = self.permission_combo.currentText()
         permissions = self.get_selected_permissions()
 
-        if username and permission_type and permissions and database:
+        if username and permission_type and permissions and database and table:
             try:
-                permission_sql = self.construct_permission_sql(permission_type, permissions, database)
+                # Construct SQL command
+                permission_sql = self.construct_permission_sql(permission_type, permissions, database, table)
                 print(f"SQL command to execute: {permission_sql}")
-                self.show_result_message(f"Permissions {permission_type}ed to user: {username} on database: {database}")
+                # Execute SQL command here (replace with your SQL execution code)
+                self.show_result_message(f"Permissions {permission_type}ed to user: {username} on table: {table} in database: {database}")
             except Exception as e:
                 self.show_error_message(f"Error: {str(e)}")
         else:
-            self.show_error_message("Please enter a username, select a database, and select permissions")
+            self.show_error_message("Please enter a username, select a database, table, and permissions")
 
     def get_selected_permissions(self):
         permissions = []
@@ -97,11 +123,11 @@ class ManagePermissionsWindow(QWidget):
             permissions.append('DELETE')
         return permissions
 
-    def construct_permission_sql(self, permission_type, permissions, database):
-        permission_sql = f"{permission_type} "
+    def construct_permission_sql(self, permission_type, permissions, database, table):
+        permission_sql = f"USE [{database}]; {permission_type} "
         if permissions:
             permission_sql += ", ".join(permissions) + " "
-        permission_sql += f"ON [{database}].[dbo].[table] TO [{self.username_input.currentText()}]"
+        permission_sql += f"ON [{table}] TO [{self.username_input.currentText()}]"
         return permission_sql
 
     def show_result_message(self, message):
