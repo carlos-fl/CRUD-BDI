@@ -23,7 +23,7 @@ class SelectTable(QWidget):
 
         self.setLayout(layout)
         self.setLayout(self.textLabel)
-        self.setLayout(self.lineEdit)
+        #self.setLayout(self.lineEdit)
         self.setLayout(self.textEdit)
         self.layout()
         self.setWindowTitle('Select Registries')
@@ -31,5 +31,4 @@ class SelectTable(QWidget):
     def select(self):
         table = Table()
         table.select_all(self.database_input.text(),self.connection,self.table_name)
-
         pass
