@@ -57,16 +57,15 @@ class ManagePermissionsWindow(QWidget):
 
     def load_databases_and_users(self):
         try:
-            # Use Windows Authentication (Trusted Connection)
-            conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=your_server;DATABASE=master;Trusted_Connection=yes')
+            conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=DESKTOP-HBC5E0J;DATABASE=master;Trusted_Connection=yes')
             cursor = conn.cursor()
 
-            # Load databases
+            # Databases
             cursor.execute("SELECT name FROM sys.databases")
             databases = cursor.fetchall()
             self.database_combo.addItems([db[0] for db in databases])
 
-            # Load users
+            # Users
             cursor.execute("SELECT name FROM sys.sql_logins")
             users = cursor.fetchall()
             self.username_input.addItems([user[0] for user in users])
@@ -80,10 +79,10 @@ class ManagePermissionsWindow(QWidget):
         database = self.database_combo.currentText()
         if database:
             try:
-                conn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER=your_server;DATABASE={database};Trusted_Connection=yes')
+                conn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER=DESKTOP-HBC5E0J;DATABASE={database};Trusted_Connection=yes')
                 cursor = conn.cursor()
 
-                # Load tables
+                
                 cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
                 tables = cursor.fetchall()
                 self.table_combo.addItems([table[0] for table in tables])
@@ -101,10 +100,8 @@ class ManagePermissionsWindow(QWidget):
 
         if username and permission_type and permissions and database and table:
             try:
-                # Construct SQL command
                 permission_sql = self.construct_permission_sql(permission_type, permissions, database, table)
                 print(f"SQL command to execute: {permission_sql}")
-                # Execute SQL command here (replace with your SQL execution code)
                 self.show_result_message(f"Permissions {permission_type}ed to user: {username} on table: {table} in database: {database}")
             except Exception as e:
                 self.show_error_message(f"Error: {str(e)}")
