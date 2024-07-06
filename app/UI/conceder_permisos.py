@@ -60,12 +60,10 @@ class ManagePermissionsWindow(QWidget):
             conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=DESKTOP-HBC5E0J;DATABASE=master;Trusted_Connection=yes')
             cursor = conn.cursor()
 
-            # Databases
             cursor.execute("SELECT name FROM sys.databases")
             databases = cursor.fetchall()
             self.database_combo.addItems([db[0] for db in databases])
 
-            # Users
             cursor.execute("SELECT name FROM sys.sql_logins")
             users = cursor.fetchall()
             self.username_input.addItems([user[0] for user in users])
@@ -82,7 +80,6 @@ class ManagePermissionsWindow(QWidget):
                 conn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER=DESKTOP-HBC5E0J;DATABASE={database};Trusted_Connection=yes')
                 cursor = conn.cursor()
 
-                
                 cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
                 tables = cursor.fetchall()
                 self.table_combo.addItems([table[0] for table in tables])
@@ -102,6 +99,7 @@ class ManagePermissionsWindow(QWidget):
             try:
                 permission_sql = self.construct_permission_sql(permission_type, permissions, database, table)
                 print(f"SQL command to execute: {permission_sql}")
+                self.execute_sql(permission_sql)
                 self.show_result_message(f"Permissions {permission_type}ed to user: {username} on table: {table} in database: {database}")
             except Exception as e:
                 self.show_error_message(f"Error: {str(e)}")
@@ -121,11 +119,22 @@ class ManagePermissionsWindow(QWidget):
         return permissions
 
     def construct_permission_sql(self, permission_type, permissions, database, table):
-        permission_sql = f"USE [{database}]; {permission_type} "
-        if permissions:
-            permission_sql += ", ".join(permissions) + " "
-        permission_sql += f"ON [{table}] TO [{self.username_input.currentText()}]"
+        permission_sql = f"USE [{database}];\n"
+        if permission_type == 'REVOKE':
+            permission_sql += f"{permission_type} {', '.join(permissions)} ON [{table}] FROM [{self.username_input.currentText()}];\nGO"
+        else:
+            permission_sql += f"{permission_type} {', '.join(permissions)} ON [{table}] TO [{self.username_input.currentText()}];\nGO"
         return permission_sql
+
+    def execute_sql(self, sql_command):
+        try:
+            conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=DESKTOP-HBC5E0J;Trusted_Connection=yes')
+            cursor = conn.cursor()
+            cursor.execute(sql_command)
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            self.show_error_message(f"Error executing SQL: {str(e)}")
 
     def show_result_message(self, message):
         QMessageBox.information(self, 'Success', message)
@@ -134,7 +143,6 @@ class ManagePermissionsWindow(QWidget):
         QMessageBox.critical(self, 'Error', message)
 
 
-# Example usage:
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
