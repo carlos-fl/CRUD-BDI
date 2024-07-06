@@ -78,9 +78,11 @@ class FillTablesWindow(QWidget):
             conn = Connection().connect_to_database(server, database, port)
             cursor = conn.cursor()
             global table
+            cursor.execute(f'USE {database}')
             sentence = f'INSERT INTO {table} VALUES{values}'
             print(sentence)
             cursor.execute(sentence)
+            cursor.commit()
         except Exception as e:
             print("un error ocurrio------", e)
 
@@ -93,14 +95,14 @@ class FillTablesWindow(QWidget):
         conn = Connection().connect_to_database(server, database, port)
         cursor = conn.cursor()
         
-        table_selected = self.table_dropdown.currentText()
-        fields = cursor.execute(f'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME LIKE {table_selected}').fetchall() 
+        global table
+        fields = cursor.execute(f'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME LIKE {table}').fetchall() 
 
-        query = f'UPDATE {table_selected} SET '
+        query = f'UPDATE {table} SET '
         # iterar por los inputs
         for i, item in enumerate(QLineEdit):
             if i != len(QLineEdit) - 1:
-                query += fields[i] + "=" + item.text() + ", "
+                query += f"'{fields[i][0]}'" + "=" + item.text() + ", "
             else:
                 query += fields[i] + "=" + item.text()
 
@@ -193,12 +195,13 @@ class FillTablesWindow(QWidget):
         self.fields_label = QLabel('Mostrar campos para actualizar entrada', self)
         # crear los campos inputs para actualizar
         # traer los campos que tiene una tabla
-        table_selected = self.table_dropdown.currentText()
+        global table
+        table = self.table_dropdown.currentText()
         server, database, port = INFO['server'], INFO['database'], INFO['port']
         try:
           conn = Connection().connect_to_database(server, database, port)
           cursor = conn.cursor()
-          sentence = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME LIKE '{table_selected}';"
+          sentence = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME LIKE '{table}';"
           table_fields = cursor.execute(sentence).fetchall()
           table_names = []
           for i, name in table_fields():
@@ -229,6 +232,9 @@ class FillTablesWindow(QWidget):
         self.delete_button = QPushButton('Borrar', self)
         self.delete_button.clicked.connect(self.delete_data)
 
+        global table
+        table = self.table_dropdown.currentText()
+
         self.layout().addWidget(self.id_label)
         self.layout().addWidget(self.id_input)
         self.layout().addWidget(self.delete_button)
@@ -241,10 +247,12 @@ class FillTablesWindow(QWidget):
       try:
         conn = Connection().connect_to_database(server, database, port) 
         cursor = conn.cursor()
-        table_selected = self.table_dropdown.currentText()
         id = self.id_input.text()
-        query = f'DELETE FROM {table_selected} WHERE Id LIKE {id}'
+        global table
+        print('TABLE: ', table)
+        query = f'DELETE FROM {table} WHERE Id LIKE {id}'
         cursor.execute(query)
+        cursor.commit()
       except Exception as e:
           print(e)
 
