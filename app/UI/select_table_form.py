@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout,QTextEdit,QLabel, QLineEdit, QPushButton,
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout,QTextEdit,QLabel, QLineEdit, QPushButton
 from app.logic.table import Table
 
 class SelectTable(QWidget):
