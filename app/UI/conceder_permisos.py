@@ -121,9 +121,9 @@ class ManagePermissionsWindow(QWidget):
     def construct_permission_sql(self, permission_type, permissions, database, table):
         permission_sql = f"USE [{database}];\n"
         if permission_type == 'REVOKE':
-            permission_sql += f"{permission_type} {', '.join(permissions)} ON {table} FROM {self.username_input.currentText()};\nGO"
+            permission_sql += f"{permission_type} {', '.join(permissions)} ON {table} FROM {self.username_input.currentText()};"
         else:
-            permission_sql += f"{permission_type} {', '.join(permissions)} ON {table} TO {self.username_input.currentText()}];\nGO"
+            permission_sql += f"{permission_type} {', '.join(permissions)} ON {table} TO {self.username_input.currentText()};"
         return permission_sql
 
     def execute_sql(self, sql_command):
