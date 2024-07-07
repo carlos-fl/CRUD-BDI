@@ -5,6 +5,7 @@ INFO = dict()
 class DatabaseForm(QWidget):
     def __init__(self):
         super().__init__()
+
         self.initUI()
 
     def initUI(self):
@@ -45,15 +46,16 @@ class DatabaseForm(QWidget):
             try:
                 from app.logic.conection import Connection
                 con = Connection()
-                self.connection = con.connect_to_database(server, database_name, port)
-                QMessageBox.information(self, 'Success', f'Server: {server}\nDatabase: {database_name}')
-                self.open_options_window(con)
+                (user_name, database) = con.connect_to_sql(server, database_name, port)
+                INFO['user_name'], INFO['database'], INFO['server'], INFO['port'] = user_name, database, server, port
+                QMessageBox.information(self, 'Success', f'Server: {server}\nDatabase: {database}\n User: {user_name}')
+                self.open_options_window()
             except Exception as e:
                 QMessageBox.critical(self, 'Connection Error', f'Error al conectar a la base de datos. Intenta poner otro servidor u otro puerto: {e}')
         else:
             QMessageBox.warning(self, 'Input Error', 'Se necesitan los datos del servidor y el nombre que se le quiere dar a la base de datos.')
 
-        
-    def open_options_window(self,con):
-        self.second_window = SecondWindow(con)
+    def open_options_window(self):
+        from app.UI.options_window import SecondWindow
+        self.second_window = SecondWindow()
         self.second_window.show()
