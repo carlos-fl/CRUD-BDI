@@ -60,7 +60,6 @@ class FillTablesWindow(QWidget):
 
         inputs = self.findChildren(QLineEdit)
         print("INPUTS: ", inputs)
-        inputs.pop()
         values = '('
         for i, item in enumerate(inputs):
           if i == 0:
@@ -92,22 +91,35 @@ class FillTablesWindow(QWidget):
         from app.UI.conection_form import INFO 
 
         server, database, port = INFO['server'], INFO['database'], INFO['port']
-        conn = Connection().connect_to_database(server, database, port)
-        cursor = conn.cursor()
+        fields = None
+        try:
+            conn = Connection().connect_to_database(server, database, port)
+            cursor = conn.cursor()
+            global table
+            fields = cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME LIKE '{table}'").fetchall() 
+        except Exception as e:
+            print(e)
         
-        global table
-        fields = cursor.execute(f'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME LIKE {table}').fetchall() 
-
         query = f'UPDATE {table} SET '
         # iterar por los inputs
-        for i, item in enumerate(QLineEdit):
-            if i != len(QLineEdit) - 1:
-                query += f"'{fields[i][0]}'" + "=" + item.text() + ", "
+        inputs = self.findChildren(QLineEdit)
+        inputs.pop(0)
+        fields.pop(0)
+        print('FIELDS', fields)
+        print('INPUTS', [name.text() for name in inputs])
+        for i, item in enumerate(inputs):
+            if i != len(inputs) - 1:
+                query += f"{fields[i][0]}" + "=" + f"'{item.text()}'" + ", "
             else:
-                query += fields[i] + "=" + item.text()
+                query += fields[i][0] + "=" + f"'{item.text()}'"
 
-        query += f'WHERE Id = {self.fields_label.text()}'
-      
+        query += f' WHERE Id = {self.id_input.text()}'
+        try:
+            print(query)
+            cursor.execute(query) 
+            cursor.commit()
+        except Exception as e:
+            print(e)
 
     def show_view_layout(self):
         from app.UI.conection_form import INFO
@@ -148,7 +160,6 @@ class FillTablesWindow(QWidget):
         from app.UI.conection_form import INFO
         from app.logic.conection import Connection
         self.clear_layout()
-        self.fields_label = QLabel('Campos para crear entrada', self)
         
         # traer los campos que tiene una tabla
         global table
@@ -177,12 +188,9 @@ class FillTablesWindow(QWidget):
             print(e)
 
 
-        self.fields_input = QLineEdit(self)
         self.save_button = QPushButton('Guardar', self)
         self.save_button.clicked.connect(self.send_data)
 
-        self.layout().addWidget(self.fields_label)
-        self.layout().addWidget(self.fields_input)
         self.layout().addWidget(self.save_button)
 
     def show_update_layout(self):
@@ -190,9 +198,8 @@ class FillTablesWindow(QWidget):
         from app.logic.conection import Connection
         
         self.clear_layout()
-        self.id_label = QLabel('Mostrar input de ID', self)
+        self.id_label = QLabel('ID del registro a actualizar', self)
         self.id_input = QLineEdit(self)
-        self.fields_label = QLabel('Mostrar campos para actualizar entrada', self)
         # crear los campos inputs para actualizar
         # traer los campos que tiene una tabla
         global table
@@ -204,8 +211,9 @@ class FillTablesWindow(QWidget):
           sentence = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME LIKE '{table}';"
           table_fields = cursor.execute(sentence).fetchall()
           table_names = []
-          for i, name in table_fields():
-            table_names.append(table_fields[i][0])
+          for i, name in enumerate(table_fields):
+            if name[0] != 'Id':
+                table_names.append(name[0])
           # crear los campos input por cada columna
           for item in table_names:
             self.item_label = QLabel(f'{item}:', self)
@@ -215,14 +223,11 @@ class FillTablesWindow(QWidget):
         except Exception as e:
            print(e)
 
-        self.fields_input = QLineEdit(self)
         self.save_button = QPushButton('Guardar', self)
         self.save_button.clicked.connect(self.send_data_updated)
 
         self.layout().addWidget(self.id_label)
         self.layout().addWidget(self.id_input)
-        self.layout().addWidget(self.fields_label)
-        self.layout().addWidget(self.fields_input)
         self.layout().addWidget(self.save_button)
 
     def show_delete_layout(self):
