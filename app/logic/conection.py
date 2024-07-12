@@ -37,3 +37,19 @@ class Connection:
       return conn
     except Exception as e:
       raise Exception(e)
+    
+  def validate_user(self, server, database, port, username, password):
+    conn = self.connect_to_database(server, database, port)
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM Usuarios WHERE NombreUsuario=? AND Contrasena=?"
+    cursor.execute(query, (username, password))
+    user = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if user:
+      return True
+    else:
+      return False    
