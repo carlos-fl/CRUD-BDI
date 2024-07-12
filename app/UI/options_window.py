@@ -30,6 +30,9 @@ class SecondWindow(QWidget):
         self.setWindowTitle('Main Menu')
 
     def open_create_tables_window(self):
+        from app.UI.table_creation_form import TableCreationForm
+        self.table_creation_form = TableCreationForm()
+        self.table_creation_form.show()
         pass
 
     def open_manage_users_window(self):
