@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QComboBox, QCheckBox, QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QComboBox, QCheckBox, QMessageBox
 import pyodbc
 
 class ManagePermissionsWindow(QWidget):
@@ -56,13 +55,15 @@ class ManagePermissionsWindow(QWidget):
         self.load_databases_and_users()
 
     def load_databases_and_users(self):
+        from app.UI.conection_form import INFO
+        server, database = INFO['server'], INFO['database']
         try:
-            conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=DESKTOP-HBC5E0J;DATABASE=master;Trusted_Connection=yes')
+            conn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes')
             cursor = conn.cursor()
 
-            cursor.execute("SELECT name FROM sys.databases")
+            cursor.execute('SELECT name FROM sys.databases')
             databases = cursor.fetchall()
-            self.database_combo.addItems([db[0] for db in databases])
+            self.database_combo.addItems([name[0] for name in databases])
 
             cursor.execute("SELECT name FROM sys.sql_logins")
             users = cursor.fetchall()
@@ -73,11 +74,13 @@ class ManagePermissionsWindow(QWidget):
             self.show_error_message(f"Error loading databases and users: {str(e)}")
 
     def load_tables(self):
+        from app.UI.conection_form import INFO
         self.table_combo.clear()
         database = self.database_combo.currentText()
+        server = INFO['server']
         if database:
             try:
-                conn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER=DESKTOP-HBC5E0J;DATABASE={database};Trusted_Connection=yes')
+                conn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes')
                 cursor = conn.cursor()
 
                 cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
@@ -127,8 +130,10 @@ class ManagePermissionsWindow(QWidget):
         return permission_sql
 
     def execute_sql(self, sql_command):
+        from app.UI.conection_form import INFO
+        server = INFO['server']
         try:
-            conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=DESKTOP-HBC5E0J;Trusted_Connection=yes')
+            conn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};Trusted_Connection=yes')
             cursor = conn.cursor()
             cursor.execute(sql_command)
             conn.commit()
