@@ -11,16 +11,18 @@ class TableCreationForm (QWidget):
         self.setWindowTitle("Create Table")
         self.setGeometry(300, 300, 400, 300)
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
 
         table_name_label = QLabel("Nombre de Tabla:")
         self.table_name_edit = QLineEdit()
-        layout.addWidget(table_name_label)
-        layout.addWidget(self.table_name_edit)
+        info_label = QLabel("Se genera un campo \"id\" como primary key por defecto")
+        self.layout.addWidget(table_name_label)
+        self.layout.addWidget(self.table_name_edit)
+        self.layout.addWidget(info_label)
 
         self.column_grid = QGridLayout()
-        layout.addLayout(self.column_grid)
+        self.layout.addLayout(self.column_grid)
 
         column1_label = QLabel("Columna:")
         self.column1_name_edit = QLineEdit()
@@ -44,11 +46,12 @@ class TableCreationForm (QWidget):
 
         add_column_button = QPushButton("Agregar Columna")
         add_column_button.clicked.connect(self.addColumn)
-        self.column_grid.addWidget(add_column_button, 2, 0, 1, 3)
+        self.layout.addWidget(add_column_button)
+        #self.column_grid.addWidget(add_column_button, 2, 0, 1, 3)
 
         create_table_button = QPushButton("Crear Tabla")
         create_table_button.clicked.connect(self.createTable)
-        layout.addWidget(create_table_button)
+        self.layout.addWidget(create_table_button)
         self.show()
 
     def addColumn(self):
@@ -59,17 +62,27 @@ class TableCreationForm (QWidget):
         column_type_combo.addItem("INT")
         column_type_combo.addItem("VARCHAR")
         column_type_combo.addItem("DATETIME")
-        
-        widget = self.column_grid.itemAtPosition(column_num-1,0).widget()
-        self.column_grid.removeWidget(widget)
+
+        # quita el boton de "agregar columna"
+        #self.layout.removeWidget()
+
+        # quita el boton de "crear tabla"
+        #widget = self.column_grid.itemAtPosition(column_num,0).widget()
+        #self.column_grid.removeWidget(widget)
+        #widget.deleteLater()
+
 
         self.column_grid.addWidget(column_label, column_num, 0)
         self.column_grid.addWidget(column_name_edit, column_num, 1)
         self.column_grid.addWidget(column_type_combo, column_num, 2)
 
-        add_column_button = QPushButton("Agregar Columna")
-        add_column_button.clicked.connect(self.addColumn)
-        self.column_grid.addWidget(add_column_button, column_num+1, 0, 1, 3)
+        #add_column_button = QPushButton("Agregar Columna")
+        #add_column_button.clicked.connect(self.addColumn)
+        #self.column_grid.addWidget(add_column_button, self.column_grid.rowCount(), 0, 1, 3)
+
+        # add_column_button = QPushButton("Crear Tabla")
+        # add_column_button.clicked.connect(self.createTable)
+        # self.column_grid.addWidget(add_column_button, column_num + 2, 0, 1, 3)
 
     def createTable(self):
         try:
@@ -79,7 +92,7 @@ class TableCreationForm (QWidget):
             cursor = conn.cursor()
 
             columns = []
-            for row in range(self.column_grid.rowCount()-1):
+            for row in range(self.column_grid.rowCount()):
                 column_name = self.column_grid.itemAtPosition(row, 1).widget().text()
                 column_type = self.column_grid.itemAtPosition(row, 2).widget().currentText()
                 columns.append((column_name, column_type))
@@ -89,8 +102,8 @@ class TableCreationForm (QWidget):
             for column in columns:
                 if column[1] == "VARCHAR":
                     column_definition += f"{column[0]} {column[1]}(30), "
-                elif column[1] == "INT":
-                    column_definition += f"{column[0]} {column[1]}(3), "
+                else:
+                    column_definition += f"{column[0]} {column[1]}, "
             column_definition = column_definition[:-2]
 
             print(column_definition)
