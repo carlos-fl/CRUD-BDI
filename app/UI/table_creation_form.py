@@ -63,26 +63,9 @@ class TableCreationForm (QWidget):
         column_type_combo.addItem("VARCHAR")
         column_type_combo.addItem("DATETIME")
 
-        # quita el boton de "agregar columna"
-        #self.layout.removeWidget()
-
-        # quita el boton de "crear tabla"
-        #widget = self.column_grid.itemAtPosition(column_num,0).widget()
-        #self.column_grid.removeWidget(widget)
-        #widget.deleteLater()
-
-
         self.column_grid.addWidget(column_label, column_num, 0)
         self.column_grid.addWidget(column_name_edit, column_num, 1)
         self.column_grid.addWidget(column_type_combo, column_num, 2)
-
-        #add_column_button = QPushButton("Agregar Columna")
-        #add_column_button.clicked.connect(self.addColumn)
-        #self.column_grid.addWidget(add_column_button, self.column_grid.rowCount(), 0, 1, 3)
-
-        # add_column_button = QPushButton("Crear Tabla")
-        # add_column_button.clicked.connect(self.createTable)
-        # self.column_grid.addWidget(add_column_button, column_num + 2, 0, 1, 3)
 
     def createTable(self):
         try:
