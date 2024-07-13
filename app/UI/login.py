@@ -47,7 +47,10 @@ class LoginWindow(QWidget):
             con = Connection().connect_to_database(server, database, port)
             cursor = con.cursor()
             
-            query = f"CREATE LOGIN {username} WITH PASSWORD = '{password}'"
+            query = f"CREATE LOGIN {username} WITH PASSWORD = '{password}', DEFAULT_DATABASE = {database}"
+            cursor.execute(f'USE {database}')
+            cursor.execute(f'ALTER USER {username} WITH LOGIN ')
+            print('QUERY', query)
             cursor.execute(query)
             cursor.commit()
             QMessageBox.information(self, 'Usuario creado exitosamente', f'Usuario {username} fue creado')
