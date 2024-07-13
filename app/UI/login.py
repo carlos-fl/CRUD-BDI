@@ -47,11 +47,17 @@ class LoginWindow(QWidget):
             con = Connection().connect_to_database(server, database, port)
             cursor = con.cursor()
             
-            query = f"CREATE LOGIN {username} WITH PASSWORD = '{password}', DEFAULT_DATABASE = {database}"
-            cursor.execute(f'USE {database}')
-            cursor.execute(f'ALTER USER {username} WITH LOGIN ')
-            print('QUERY', query)
+            #query = f"CREATE LOGIN {username} WITH PASSWORD = '{password}', DEFAULT_DATABASE = {database}"
+            #cursor.execute(f'USE {database}')
+            #cursor.execute(f'ALTER USER {username} WITH LOGIN ')
+            #print('QUERY', query)
+            #cursor.execute(query)
+            query = f"CREATE LOGIN {username} WITH PASSWORD = '{password}'"
             cursor.execute(query)
+            grant_permissions_sql = f"USE {database}; ALTER ROLE db_datareader ADD MEMBER {username}; ALTER ROLE db_datawriter ADD MEMBER {username};"
+            cursor.execute(grant_permissions_sql)
+            grant_permissions_sql = f'CREATE USER {username} FOR LOGIN {username};'
+            cursor.execute(grant_permissions_sql)
             cursor.commit()
             QMessageBox.information(self, 'Usuario creado exitosamente', f'Usuario {username} fue creado')
         except Exception as e:
