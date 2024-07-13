@@ -92,7 +92,7 @@ class TableCreationForm (QWidget):
             print(column_definition)
             cursor.execute(f'USE {DATABASE};')
             print(f'CREATE TABLE {tableName} (id INT PRIMARY KEY, {column_definition});')
-            cursor.execute(f'CREATE TABLE {tableName} (id INT PRIMARY KEY, {column_definition});')
+            cursor.execute(f'CREATE TABLE {tableName} (Id INT PRIMARY KEY, {column_definition});')
             conn.commit()
             cursor.close()
             print(f'Tabla {tableName} creada exitosamente')
