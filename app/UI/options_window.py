@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
 
+
 class SecondWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -14,7 +15,7 @@ class SecondWindow(QWidget):
         self.manage_users_button = QPushButton('MANEJAR PERMISOS DE USUARIOS', self)
         self.manage_users_button.clicked.connect(self.open_manage_users_window)
 
-        self.join_user_button = QPushButton('UNIRSE COMO USUARIO', self)
+        self.join_user_button = QPushButton('CREAR USUARIO', self)
         self.join_user_button.clicked.connect(self.open_join_user_window)
 
         self.fill_tables_button = QPushButton('LLENAR TABLAS', self)
@@ -47,3 +48,9 @@ class SecondWindow(QWidget):
         from app.UI.llenar_tablas import FillTablesWindow
         self.fill_table_window = FillTablesWindow()
         self.fill_table_window.show()
+
+    # Función para abrir la ventana de login
+    def open_join_user_window(self):
+        from app.UI.login import LoginWindow  # Importa la clase LoginWindow desde login.py
+        self.login_window = LoginWindow()  # Crea una instancia de la ventana de login
+        self.login_window.show()  # Muestra la ventana de login
